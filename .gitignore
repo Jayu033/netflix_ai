@@ -1,0 +1,9 @@
+# Large CSV files over 100MB (GitHub Limit)
+rotten_tomatoes_critic_reviews.csv
+
+# Python Bytecode & Environment
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.vscode/
+.idea/

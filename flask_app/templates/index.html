@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineAI | Pre-Release OTT Rating & Show Clustering Engine</title>
+    <!-- Google Fonts & Bootstrap 5 -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-dark: #060814;
+            --card-glass: rgba(18, 22, 41, 0.85);
+            --card-border: rgba(255, 255, 255, 0.15);
+            --accent-orange: #FC6C26;
+            --accent-purple: #A855F7;
+            --accent-cyan: #38BDF8;
+            --accent-green: #10B981;
+            --text-label: #E2E8F0;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--bg-dark);
+            color: #F8FAFC;
+            font-family: 'Inter', sans-serif;
+        }
+
+        h1, h2, h3, h4, h5, h6, .font-heading {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        /* Ambient Glowing Background Orbs */
+        .ambient-orb-1 {
+            position: absolute;
+            top: -10%;
+            left: -10%;
+            width: 55vw;
+            height: 55vw;
+            background: radial-gradient(circle, rgba(252, 108, 38, 0.22) 0%, transparent 70%);
+            animation: pulseOrb 8s infinite alternate ease-in-out;
+            pointer-events: none;
+        }
+
+        .ambient-orb-2 {
+            position: absolute;
+            bottom: -10%;
+            right: -10%;
+            width: 55vw;
+            height: 55vw;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.22) 0%, transparent 70%);
+            animation: pulseOrb 10s infinite alternate ease-in-out;
+            pointer-events: none;
+        }
+
+        @keyframes pulseOrb {
+            0% { transform: scale(1) translate(0, 0); }
+            100% { transform: scale(1.15) translate(30px, -30px); }
+        }
+
+        /* Navbar */
+        .navbar-custom {
+            background: rgba(6, 8, 20, 0.95);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--card-border);
+            padding: 12px 0;
+            z-index: 100;
+        }
+
+        /* View Switching Animation */
+        .view-section {
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+        .hidden-view {
+            display: none !important;
+            opacity: 0;
+            transform: scale(0.98);
+        }
+
+        /* ==================== 3D SCREEN ZOOM FLY-IN ANIMATION (FONT STAYS 100% STRAIGHT) ==================== */
+        .hero-container {
+            height: calc(100vh - 75px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 10;
+            perspective: 1000px;
+        }
+
+        .logo-impact-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        /* 3D Zoom Fly-In Animation - Font Stays Straight (No Stretch) */
+        .logo-drop-box {
+            animation: screenZoomFlyIn 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            position: relative;
+            z-index: 5;
+            transform-style: preserve-3d;
+        }
+
+        @keyframes screenZoomFlyIn {
+            0% {
+                opacity: 0;
+                transform: scale(3.2) translateZ(300px); /* Zooming in from screen front camera depth */
+                filter: blur(14px);
+            }
+            70% {
+                opacity: 1;
+                transform: scale(0.96) translateZ(0); /* Lands in place without font stretching */
+                filter: blur(0px);
+            }
+            85% {
+                transform: scale(1.03);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+                filter: blur(0px);
+            }
+        }
+
+        /* Shockwave Expansion Ring at Moment of Landing */
+        .shockwave-ring {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            width: 150px;
+            height: 45px;
+            margin-left: -75px;
+            border: 3px solid #FC6C26;
+            border-radius: 50%;
+            box-shadow: 0 0 35px #FC6C26, inset 0 0 35px #FC6C26;
+            opacity: 0;
+            z-index: 2;
+            animation: shockwaveBurst 0.85s ease-out 0.55s forwards;
+            pointer-events: none;
+        }
+
+        @keyframes shockwaveBurst {
+            0% {
+                transform: scale(0.2);
+                opacity: 1;
+            }
+            70% {
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(4.8);
+                opacity: 0;
+            }
+        }
+
+        /* Dust Cloud Particles Container */
+        .dust-cloud-container {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 320px;
+            height: 100px;
+            pointer-events: none;
+            z-index: 3;
+        }
+
+        /* Dust Particles */
+        .dust-puff {
+            position: absolute;
+            bottom: 0;
+            background: radial-gradient(circle, rgba(255, 244, 214, 0.55) 0%, rgba(252, 108, 38, 0.35) 50%, transparent 80%);
+            border-radius: 50%;
+            filter: blur(8px);
+            opacity: 0;
+            animation: dustRise 1.2s ease-out 0.55s forwards;
+        }
+
+        .dust-1 { left: 10%; width: 65px; height: 65px; --dx: -130px; --dy: -60px; }
+        .dust-2 { left: 30%; width: 85px; height: 85px; --dx: -75px; --dy: -95px; }
+        .dust-3 { left: 50%; width: 95px; height: 95px; --dx: 0px; --dy: -115px; }
+        .dust-4 { left: 70%; width: 80px; height: 80px; --dx: 75px; --dy: -90px; }
+        .dust-5 { left: 85%; width: 70px; height: 70px; --dx: 135px; --dy: -55px; }
+        .dust-6 { left: 20%; width: 55px; height: 55px; --dx: -95px; --dy: -45px; }
+        .dust-7 { left: 75%; width: 60px; height: 60px; --dx: 100px; --dy: -50px; }
+
+        @keyframes dustRise {
+            0% {
+                opacity: 0;
+                transform: translate(0, 0) scale(0.3);
+            }
+            30% {
+                opacity: 0.9;
+            }
+            100% {
+                opacity: 0;
+                transform: translate(var(--dx), var(--dy)) scale(2.4);
+            }
+        }
+
+        .logo-icon-glow {
+            width: 110px;
+            height: 110px;
+            background: linear-gradient(135deg, #FC6C26 0%, #FF4500 50%, #E63900 100%);
+            border-radius: 30px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 20px 60px rgba(252, 108, 38, 0.5);
+            margin-bottom: 24px;
+        }
+
+        .cineai-logo-text {
+            background: linear-gradient(135deg, #FFFFFF 20%, #FC6C26 70%, #FF8A00 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 900;
+            font-size: 82px;
+            line-height: 1;
+            letter-spacing: -2px;
+            margin-bottom: 12px;
+            font-style: normal !important;
+            transform: none !important;
+        }
+
+        .landing-subtitle {
+            color: #E2E8F0;
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 36px;
+            opacity: 0.9;
+            font-style: normal !important;
+        }
+
+        .btn-launch-hero {
+            background: linear-gradient(135deg, #FC6C26 0%, #FF4500 50%, #E63900 100%);
+            color: #FFFFFF;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 19px;
+            letter-spacing: 0.5px;
+            padding: 16px 48px;
+            border-radius: 50px;
+            border: none;
+            box-shadow: 0 12px 40px rgba(252, 108, 38, 0.5);
+            transition: all 0.3s ease;
+            animation: fadeInCTA 1.2s ease forwards;
+        }
+
+        @keyframes fadeInCTA {
+            0% { opacity: 0; transform: translateY(30px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .btn-launch-hero:hover {
+            transform: scale(1.06);
+            box-shadow: 0 18px 55px rgba(252, 108, 38, 0.7);
+            color: #FFFFFF;
+        }
+
+        /* PREDICTOR DASHBOARD STYLES */
+        .main-wrapper {
+            height: calc(100vh - 125px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .content-row {
+            flex: 1;
+            display: flex;
+        }
+
+        .glass-card {
+            background: var(--card-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 18px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+            padding: 24px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .form-label {
+            font-weight: 700;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: var(--text-label) !important;
+            margin-bottom: 6px;
+        }
+
+        .form-control, .form-select {
+            background: rgba(10, 13, 26, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #FFFFFF;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 14px;
+        }
+
+        .form-control:focus, .form-select:focus {
+            background: rgba(15, 20, 38, 0.95);
+            border-color: var(--accent-orange);
+            color: #FFFFFF;
+            box-shadow: 0 0 0 3px rgba(252, 108, 38, 0.2);
+        }
+
+        .btn-predict {
+            background: linear-gradient(135deg, #FC6C26 0%, #FF4500 50%, #E63900 100%);
+            color: #FFFFFF;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 16px;
+            letter-spacing: 0.5px;
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: none;
+            width: 100%;
+            box-shadow: 0 8px 25px rgba(252, 108, 38, 0.4);
+            transition: all 0.25s ease;
+        }
+
+        .btn-predict:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 12px 35px rgba(252, 108, 38, 0.6);
+            color: #FFFFFF;
+        }
+
+        .metric-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.6px;
+            color: #CBD5E1 !important;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .metric-box {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 14px;
+            padding: 18px 20px;
+            text-align: center;
+        }
+
+        .badge-status-hit {
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: #FFFFFF;
+            padding: 7px 18px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 700;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .badge-status-avg {
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            color: #FFFFFF;
+            padding: 7px 18px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 700;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+        }
+
+        .progress-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            height: 14px;
+            overflow: hidden;
+        }
+
+        .progress-bar-glow {
+            background: linear-gradient(90deg, #FC6C26 0%, #A855F7 50%, #38BDF8 100%);
+            border-radius: 8px;
+            height: 100%;
+        }
+
+        .advisory-box {
+            background: #FFF4D6;
+            color: #1E0F08;
+            border-radius: 14px;
+            padding: 16px 20px;
+            font-weight: 600;
+            font-size: 14px;
+            border-left: 6px solid #FC6C26;
+        }
+
+        .gradient-title {
+            background: linear-gradient(135deg, #FFFFFF 30%, #FC6C26 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+            font-size: 26px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Ambient Glowing Orbs -->
+    <div class="ambient-orb-1"></div>
+    <div class="ambient-orb-2"></div>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-dark navbar-custom">
+        <div class="container d-flex justify-content-between align-items-center">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="#" onclick="showLandingView()">
+                <div class="d-flex align-items-center justify-content-center bg-danger rounded-3" style="width: 34px; height: 34px;">
+                    <i class="fa-solid fa-film text-white fs-6"></i>
+                </div>
+                <span class="font-heading fw-bold fs-4 text-white">CineAI Analytics</span>
+            </a>
+            
+            <div id="navRightBtn">
+                {% if result %}
+                <button class="btn btn-outline-light btn-sm rounded-pill px-3" onclick="showLandingView()">
+                    <i class="fa-solid fa-house me-1 text-warning"></i> Home Page
+                </button>
+                {% else %}
+                <button class="btn btn-outline-light btn-sm rounded-pill px-3" onclick="toggleView()">
+                    <i class="fa-solid fa-gauge me-1 text-warning"></i> Open AI Dashboard
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- ==================== VIEW 1: 3D SCREEN ZOOM FLY-IN LOGO & DUST BURST LANDING PAGE ==================== -->
+    <div id="landingView" class="view-section hero-container {{ 'hidden-view' if result else '' }}">
+        <div class="container text-center">
+            <div class="logo-impact-wrapper">
+                <!-- Glowing Shockwave Burst Ring -->
+                <div class="shockwave-ring"></div>
+
+                <!-- Heavy Dust Cloud Puff Particles Burst -->
+                <div class="dust-cloud-container">
+                    <div class="dust-puff dust-1"></div>
+                    <div class="dust-puff dust-2"></div>
+                    <div class="dust-puff dust-3"></div>
+                    <div class="dust-puff dust-4"></div>
+                    <div class="dust-puff dust-5"></div>
+                    <div class="dust-puff dust-6"></div>
+                    <div class="dust-puff dust-7"></div>
+                </div>
+
+                <!-- 3D Screen Zoom Fly-In Logo Box (Straight Fonts) -->
+                <div class="logo-drop-box">
+                    <div class="logo-icon-glow">
+                        <i class="fa-solid fa-film text-white display-3"></i>
+                    </div>
+                    <h1 class="cineai-logo-text font-heading">CineAI</h1>
+                    <div class="landing-subtitle font-heading">
+                        Pre-Release OTT Rating & Show Clustering Engine
+                    </div>
+                </div>
+            </div>
+
+            <!-- Single Clean Launch Button -->
+            <div>
+                <button class="btn btn-launch-hero" onclick="showPredictorView()">
+                    <i class="fa-solid fa-rocket me-2"></i> ENTER PLATFORM
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== VIEW 2: INTERACTIVE PREDICTOR DASHBOARD ==================== -->
+    <div id="predictorView" class="view-section main-wrapper container mt-3 pb-3 {{ 'hidden-view' if not result else '' }}">
+        <!-- Dashboard Header -->
+        <div class="text-center mb-3">
+            <h1 class="gradient-title mb-1">OTT Content Rating & Show Clustering Engine</h1>
+            <p class="text-light opacity-90 small mb-0">Pre-Release Machine Learning Intelligence & Box Office Forecasting Engine</p>
+        </div>
+
+        <div class="row g-3 content-row">
+            <!-- Left Column: Input Form Card -->
+            <div class="col-lg-5 h-100">
+                <div class="glass-card">
+                    <div>
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="fa-solid fa-sliders text-warning fs-5"></i>
+                                <h5 class="mb-0 text-white font-heading fw-bold">Script Parameters</h5>
+                            </div>
+                            <button class="btn btn-sm btn-link text-muted p-0 text-decoration-none" onclick="showLandingView()">
+                                <i class="fa-solid fa-house me-1"></i> Home
+                            </button>
+                        </div>
+
+                        <form action="/predict" method="POST" id="predictForm" class="d-flex flex-column h-100">
+                            <div class="mb-3">
+                                <label class="form-label"><i class="fa-solid fa-heading me-1"></i> Movie / Show Title</label>
+                                <input type="text" class="form-control" name="title" value="{{ form_data.title if form_data else 'War 2 - Undercover Agent' }}" placeholder="e.g., Pushpa 2, War 2" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label"><i class="fa-solid fa-tags me-1"></i> Genres (Comma Separated)</label>
+                                <input type="text" class="form-control" name="genre" value="{{ form_data.genre if form_data else 'Action, Thriller, Crime' }}" placeholder="e.g., Action, Thriller, Sci-Fi" required>
+                            </div>
+
+                            <div class="row g-2 mb-3">
+                                <div class="col-6">
+                                    <label class="form-label"><i class="fa-solid fa-globe me-1"></i> Country</label>
+                                    <select class="form-select" name="country">
+                                        <option value="India" {{ 'selected' if form_data and form_data.country == 'India' else '' }}>India</option>
+                                        <option value="United States" {{ 'selected' if form_data and form_data.country == 'United States' else '' }}>United States</option>
+                                        <option value="United Kingdom" {{ 'selected' if form_data and form_data.country == 'United Kingdom' else '' }}>United Kingdom</option>
+                                        <option value="Japan" {{ 'selected' if form_data and form_data.country == 'Japan' else '' }}>Japan</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-6">
+                                    <label class="form-label"><i class="fa-solid fa-clock me-1"></i> Duration (Min)</label>
+                                    <input type="number" class="form-control" name="duration" value="{{ form_data.duration if form_data else 125 }}" min="45" max="240">
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label"><i class="fa-solid fa-align-left me-1"></i> Synopsis Description</label>
+                                <textarea class="form-control" name="description" rows="3" placeholder="Enter plot summary..." required>{{ form_data.description if form_data else 'An intense undercover agent infiltrates an international mafia syndicate to stop a catastrophic plot.' }}</textarea>
+                            </div>
+                        </form>
+                    </div>
+
+                    <button type="submit" form="predictForm" class="btn btn-predict mt-auto">
+                        <i class="fa-solid fa-wand-magic-sparkles me-2"></i> PREDICT RATING & CLUSTER
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right Column: Results Card -->
+            <div class="col-lg-7 h-100">
+                {% if result %}
+                <div class="glass-card">
+                    <div>
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="fa-solid fa-chart-pie text-info fs-5"></i>
+                                <h5 class="mb-0 text-white font-heading fw-bold">AI Analysis: <i>{{ result.title }}</i></h5>
+                            </div>
+                            <span class="badge bg-dark border border-secondary text-light">Random Forest ML</span>
+                        </div>
+
+                        <!-- Metric Cards Row -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <div class="metric-box">
+                                    <span class="metric-label">PREDICTED RATING STATUS</span>
+                                    <span class="{{ 'badge-status-hit' if result.is_hit else 'badge-status-avg' }}">
+                                        {{ result.status }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="metric-box">
+                                    <span class="metric-label">CONFIDENCE SCORE</span>
+                                    <h3 class="fw-bold mb-0 text-info font-heading">{{ result.confidence }}%</h3>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Progress Bar -->
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between metric-label mb-2">
+                                <span>SUCCESS PROBABILITY METER</span>
+                                <span class="fw-bold text-white">{{ result.confidence }}%</span>
+                            </div>
+                            <div class="progress-container">
+                                <div class="progress-bar-glow" style="width: {{ result.confidence }}%;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Box Office & Cluster Row -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <div class="metric-box">
+                                    <span class="metric-label">ESTIMATED BOX OFFICE</span>
+                                    <h3 class="fw-bold mb-0 text-warning font-heading">{{ result.box_office }}</h3>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="metric-box">
+                                    <span class="metric-label">TARGET AUDIENCE CLUSTER</span>
+                                    <h6 class="fw-bold mb-0 font-heading" style="color:#A855F7;">Cluster {{ result.cluster_id }}: {{ result.cluster_name }}</h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI Script Advisory Banner At Bottom -->
+                    <div class="advisory-box d-flex align-items-center gap-3 mt-auto">
+                        <i class="fa-solid fa-lightbulb text-warning fs-3"></i>
+                        <div>
+                            <div class="text-uppercase small fw-bold text-dark mb-1">AI Script Advisory</div>
+                            <div class="text-dark fw-bold">{{ result.advisory }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="glass-card text-center justify-content-center">
+                    <div class="my-auto py-5">
+                        <div class="d-inline-flex align-items-center justify-content-center bg-dark rounded-circle p-4 mb-4 border border-secondary">
+                            <i class="fa-solid fa-robot display-4 text-warning opacity-90"></i>
+                        </div>
+                        <h3 class="text-white font-heading mb-2">Ready For Script Evaluation</h3>
+                        <p class="text-light opacity-90 max-w-md mx-auto fs-6">Fill in your unreleased movie or show script parameters on the left and click "Predict Rating & Cluster" to launch real-time Machine Learning inferencing!</p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript View Switcher -->
+    <script>
+        function showPredictorView() {
+            document.getElementById('landingView').classList.add('hidden-view');
+            document.getElementById('predictorView').classList.remove('hidden-view');
+            document.getElementById('navRightBtn').innerHTML = `
+                <button class="btn btn-outline-light btn-sm rounded-pill px-3" onclick="showLandingView()">
+                    <i class="fa-solid fa-house me-1 text-warning"></i> Home Page
+                </button>
+            `;
+        }
+
+        function showLandingView() {
+            document.getElementById('predictorView').classList.add('hidden-view');
+            document.getElementById('landingView').classList.remove('hidden-view');
+            document.getElementById('navRightBtn').innerHTML = `
+                <button class="btn btn-outline-light btn-sm rounded-pill px-3" onclick="showPredictorView()">
+                    <i class="fa-solid fa-gauge me-1 text-warning"></i> Open AI Dashboard
+                </button>
+            `;
+        }
+
+        function toggleView() {
+            if (document.getElementById('landingView').classList.contains('hidden-view')) {
+                showLandingView();
+            } else {
+                showPredictorView();
+            }
+        }
+    </script>
+
+</body>
+</html>
