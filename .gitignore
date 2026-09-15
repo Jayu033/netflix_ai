@@ -1,9 +1,15 @@
-# Large CSV files over 100MB (GitHub Limit)
+# Large Dataset Directories & Files (Exceeds GitHub 100MB Limit)
+dataset/
+dataset1/
+datasets/
+*.crdownload
 rotten_tomatoes_critic_reviews.csv
+*.csv
 
-# Python Bytecode & Environment
+# Python Bytecode & Environments
 __pycache__/
 *.pyc
 .ipynb_checkpoints/
 .vscode/
 .idea/
+scratch/

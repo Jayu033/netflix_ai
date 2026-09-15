@@ -49,8 +49,8 @@ The project integrates 13 multi-platform dataset sources totaling **1,202,133 Ro
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/your-username/BCA-ML-Major-Project-Cinema-Analytics.git
-cd BCA-ML-Major-Project-Cinema-Analytics
+git clone https://github.com/Jayu033/netflix_ai.git
+cd netflix_ai
 ```
 
 ### 2. Install Dependencies
