@@ -4,7 +4,9 @@ dataset1/
 datasets/
 *.crdownload
 rotten_tomatoes_critic_reviews.csv
-*.csv
+cinema_analytics_master_dataset.csv
+Netflix_User_Ratings*.csv
+stories.csv
 
 # Python Bytecode & Environments
 __pycache__/
